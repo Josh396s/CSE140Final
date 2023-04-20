@@ -8,6 +8,7 @@ Good luck and happy searching!
 import logging
 
 from pacai.core.actions import Actions
+from pacai.core.directions import Directions
 from pacai.core.search import heuristic
 from pacai.core.search.position import PositionSearchProblem
 from pacai.core.search.problem import SearchProblem
@@ -63,8 +64,37 @@ class CornersProblem(SearchProblem):
             if not startingGameState.hasFood(*corner):
                 logging.warning('Warning: no food in corner ' + str(corner))
 
-        # *** Your Code Here ***
-        raise NotImplementedError()
+    def successorStates(self, state):
+        successors = []
+
+        for action in Directions.CARDINAL:
+            x, y = state[0][0], state[0][1]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+
+            if (not hitsWall):
+                if (x, y) in self.corners:
+                    da_index = 0
+                    for ind in self.corners:
+                        if ind == (x, y):
+                            main_list = list(state)
+                            da_list = list(state[1])
+                            da_list[da_index] = 1
+                            main_list[1] = tuple(da_list)
+                            state = tuple(main_list)    
+                        da_index += 1
+                successors.append((((nextx, nexty), state[1]), action, 1))
+        return successors 
+
+    def isGoal(self, state):
+        if(state[1] == (1, 1, 1, 1)):
+            return True
+        return False
+
+    def startingState(self):
+        return((self.startingPosition, (0,0,0,0)))
+
 
     def actionsCost(self, actions):
         """

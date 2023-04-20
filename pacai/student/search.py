@@ -1,6 +1,9 @@
 """
 In this file, you will implement generic search algorithms which are called by Pacman agents.
 """
+import pacai.util.queue as queue
+import pacai.util.stack as stack
+import pacai.util.priorityQueue as priorityQueue
 
 def depthFirstSearch(problem):
     """
@@ -17,30 +20,124 @@ def depthFirstSearch(problem):
     print("Start's successors: %s" % (problem.successorStates(problem.startingState())))
     ```
     """
+    frontier = stack.Stack()
+    node = problem.startingState()
+    frontier.push((node, []))
+    explored = set()
 
-    # *** Your Code Here ***
-    raise NotImplementedError()
+    if(problem.isGoal(node)):
+        return []
+    
+    while(True):
+        if(frontier.isEmpty()):
+            return None
+        node = frontier.pop()
+        coord = node[0]
+        actions = node[1]
+        if(problem.isGoal(coord)):
+            return actions
+        explored.add(coord)
+
+        for states in problem.successorStates(coord):
+            if states[0] not in explored:
+                da_children = list(actions)
+                da_children.append(states[1])
+                frontier.push((states[0], da_children
+                ))
+    
 
 def breadthFirstSearch(problem):
     """
     Search the shallowest nodes in the search tree first. [p 81]
     """
+    frontier = queue.Queue()
+    node = problem.startingState()
+    frontier.push((node, []))
+    explored = set()
+    
+    while(frontier.isEmpty() == False):
+        node = frontier.pop()
+        coord = node[0]
+        actions = node[1]
+        explored.add(coord)
+        if(problem.isGoal(coord)):
+            return actions
+        
+        for states in problem.successorStates(coord):
+            da_children = list(actions)
+            da_children.append(states[1])
+            if states[0] not in explored:
+                if(problem.isGoal(states[0])):
+                    return da_children  
+                frontier.push((states[0], da_children))
+                explored.add(states[0])
+    return []
 
-    # *** Your Code Here ***
-    raise NotImplementedError()
 
 def uniformCostSearch(problem):
     """
     Search the node of least total cost first.
     """
+    frontier = priorityQueue.PriorityQueue()
+    node = problem.startingState()
+    frontier.push((node, []), 0)
+    explored = set()
 
-    # *** Your Code Here ***
-    raise NotImplementedError()
+    if(problem.isGoal(node)):
+        return []
+    
+    while(True):
+        if(frontier.isEmpty()):
+            return None
+        node = frontier.pop()
+        coord = node[0]
+        actions = node[1]
+        if(problem.isGoal(coord)):
+            return actions
+        explored.add(coord)
+
+        for states in problem.successorStates(coord):
+            if states[0] not in explored:
+                da_children = list(actions)
+                da_children.append(states[1])
+                if(problem.isGoal(states[0])):
+                    return da_children  
+                frontier.push((states[0], da_children), states[2])
+                explored.add(states[0])
 
 def aStarSearch(problem, heuristic):
     """
     Search the node that has the lowest combined cost and heuristic first.
     """
+    node = problem.startingState()
+    frontier = priorityQueue.PriorityQueue()
+    frontier.push((node, [], 0), 0)
+    explored = set()
 
-    # *** Your Code Here ***
-    raise NotImplementedError()
+    if(problem.isGoal(node)):
+        return []
+    
+    while(True):
+        if(frontier.isEmpty()):
+            return None
+        node = frontier.pop()
+        coord = node[0]
+        actions = node[1]
+
+        if(problem.isGoal(coord)):
+            return actions
+        explored.add(coord)
+
+        for states in problem.successorStates(coord):
+            if states[0] not in explored:
+                da_children = list(actions)
+                da_children.append(states[1])
+                if(problem.isGoal(states[0])):
+                    return da_children  
+                
+                path_cost = len(da_children)
+                heu_cost = heuristic(states[0], problem)
+                total_cost = path_cost + heu_cost
+                
+                frontier.push((states[0], da_children, states[2]), total_cost)
+                explored.add(states[0])
