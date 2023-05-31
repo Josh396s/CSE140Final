@@ -98,3 +98,8 @@ class OffensiveReflexAgent(ReflexCaptureAgent):
             'successorScore': 100,
             'distanceToFood': -1
         }
+
+        return {
+            'successorScore': 100,
+            'distanceToFood': -1
+        }
