@@ -80,16 +80,16 @@ class ReflexCaptureAgent1(CaptureAgent):
         successor = self.getSuccessor(gameState, action)
         myState = successor.getAgentState(self.index)
         myPos = myState.getPosition()
-
-        # Computes whether we're on defense (1) or offense (0).
-        features['onDefense'] = 1
-        if (myState.isPacman()):
-            features['onDefense'] = 0
         
         # Computes distance to invaders we can see.
         enemies = [successor.getAgentState(i) for i in self.getOpponents(successor)]
         invaders = [a for a in enemies if a.isPacman() and a.getPosition() is not None]
         features['numInvaders'] = len(invaders)
+
+        # Computes whether we're on defense (1) or offense (0).
+        features['onDefense'] = 1
+        if (myState.isPacman()):
+            features['onDefense'] = 0
 
         #If we have invaders, defend
         if (len(invaders) > 0 and features['onDefense'] == 1): 
@@ -113,19 +113,18 @@ class ReflexCaptureAgent1(CaptureAgent):
             foodPositions = []
             foodList = self.getFood(successor).asList()
             for foodPos in foodList:
-                if(foodPos[0] >= (height//2)):
+                if(foodPos[1] < (height//2)):
                     foodPositions.append(foodPos)
 
             #Compute the distance to the nearest capsule
             capsulePositions = []
             if(1 in CaptureAgent.getTeam(self, gameState)): #If we're Red
-                capsuleList = CaptureGameState.getRedCapsules(successor)
+                capsuleList = CaptureGameState.getRedCapsules(gameState)
             else: #If we're Blue
-                capsuleList = CaptureGameState.getBlueCapsules(successor)
+                capsuleList = CaptureGameState.getBlueCapsules(gameState)
             for capPos in capsuleList:
-                if(capPos[0] >= (height//2)):
+                if(capPos[1] < (height//2)):
                     capsulePositions.append(capPos)
-
 
             #Getting shortest distance to food, if any
             if (len(foodPositions) > 0):
@@ -143,13 +142,13 @@ class ReflexCaptureAgent1(CaptureAgent):
     def getWeights(self, gameState, action):
         return {
             'numInvaders': -1000,
-            'onDefense': 10,
-            'invaderDistance': -10,
+            'onDefense': -2,
+            'invaderDistance': -100,
             'stop': -100,
-            'reverse': -2,
+            'reverse': -1,
             'successorScore': 100,
             'distanceToFood': -1,
-            'distanceToCapusle': -10000
+            'distanceToCapusle': -100
         }
 
 class ReflexCaptureAgent2(CaptureAgent):
@@ -209,17 +208,17 @@ class ReflexCaptureAgent2(CaptureAgent):
         successor = self.getSuccessor(gameState, action)
         myState = successor.getAgentState(self.index)
         myPos = myState.getPosition()
-
-        # Computes whether we're on defense (1) or offense (0).
-        features['onDefense'] = 1
-        if (myState.isPacman()):
-            features['onDefense'] = 0
         
         # Computes distance to invaders we can see.
         enemies = [successor.getAgentState(i) for i in self.getOpponents(successor)]
         invaders = [a for a in enemies if a.isPacman() and a.getPosition() is not None]
         features['numInvaders'] = len(invaders)
 
+        # Computes whether we're on defense (1) or offense (0).
+        features['onDefense'] = 1
+        if (myState.isPacman()):
+            features['onDefense'] = 0
+        
         #If we have invaders, defend
         if (len(invaders) > 0 and features['onDefense'] == 1): 
             dists = [self.getMazeDistance(myPos, a.getPosition()) for a in invaders]
@@ -242,19 +241,18 @@ class ReflexCaptureAgent2(CaptureAgent):
             foodPositions = []
             foodList = self.getFood(successor).asList()
             for foodPos in foodList:
-                if(foodPos[0] <= (height//2)):
+                if(foodPos[0] > (height//2)):
                     foodPositions.append(foodPos)
 
             #Compute the distance to the nearest capsule
             capsulePositions = []
             if(1 in CaptureAgent.getTeam(self, gameState)): #If we're Red
-                capsuleList = CaptureGameState.getRedCapsules(successor)
+                capsuleList = CaptureGameState.getRedCapsules(gameState)
             else: #If we're Blue
-                capsuleList = CaptureGameState.getBlueCapsules(successor)
+                capsuleList = CaptureGameState.getBlueCapsules(gameState)
             for capPos in capsuleList:
-                if(capPos[0] <= (height//2)):
+                if(capPos[0] > (height//2)):
                     capsulePositions.append(capPos)
-
 
             #Getting shortest distance to food, if any
             if (len(foodPositions) > 0):
@@ -272,11 +270,11 @@ class ReflexCaptureAgent2(CaptureAgent):
     def getWeights(self, gameState, action):
         return {
             'numInvaders': -1000,
-            'onDefense': 10,
-            'invaderDistance': -10,
+            'onDefense': -2,
+            'invaderDistance': -100,
             'stop': -100,
-            'reverse': -2,
+            'reverse': -1,
             'successorScore': 100,
             'distanceToFood': -1,
-            'distanceToCapusle': -10000
+            'distanceToCapusle': -100
         }
